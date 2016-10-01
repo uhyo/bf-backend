@@ -2,15 +2,23 @@
   "name": "bf-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/bin.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc",
+    "build": "npm-run-all build:tsc build:jison",
+    "build:jison": "jison ./parser/parser.jison -m commonjs -o ./dist/parser.js",
+    "build:tsc": "tsc",
     "watch": "tsc --watch"
   },
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/cli": "^0.11.19",
+    "jison": "^0.4.17",
+    "npm-run-all": "^3.1.0",
     "typescript": "^2.0.0"
+  },
+  "dependencies": {
+    "cli": "^1.0.0"
   }
 }

@@ -16,6 +16,9 @@ export interface UnitValue{
 export type Value = CharValue | AddrValue | UnitValue;
 
 // Def. of Ops.
+export interface Nop{
+    type: 'nop';
+}
 export interface Push{
     type: 'push';
     value: Value;
@@ -32,11 +35,17 @@ export interface In{
 export interface Out{
     type: 'out';
 }
-export interface Goto{
-    type: 'goto';
+export interface Jump{
+    type: 'jump';
+    target: AddrValue;
+}
+export interface JumpIfZ{
+    type: 'jumpifz';
+    target: AddrValue;
 }
 
 export type Op =
+    Nop |
     // Stack Manipulation.
     Push |
     Discard |
@@ -44,7 +53,7 @@ export type Op =
     // I/O.
     In | Out |
     // Jump.
-    Goto;
+    Jump | JumpIfZ;
 
 // Def. of Program.
 export interface Block{

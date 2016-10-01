@@ -1,0 +1,7 @@
+# show 2 values
+*main:
+	push 0x30;
+	push 0x35;
+	out;
+	out;
+

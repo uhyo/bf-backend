@@ -8,8 +8,6 @@ import {
 
 export function printProgram({blocks, start}: Program): string{
     let result = '';
-    result += `.start ${start.value}\n`;
-
     for (let b of blocks){
         result += printBlock(b);
     }
@@ -17,18 +15,24 @@ export function printProgram({blocks, start}: Program): string{
 }
 function printBlock({addr, code}: Block): string{
     let result = '';
-    result += `${addr}:\n`;
+    result += `*${addr}:\n`;
     for (let op of code){
         const opstr = printOp(op);
-        result += `\t${opstr}\n`;
+        result += `\t${opstr};\n`;
     }
     return result;
 }
 function printOp(op: Op): string{
+    const delim = '\t\t';
     switch (op.type){
         case 'push': {
             const v = printValue(op.value);
-            return `push\t${v}`;
+            return `push${delim}${v}`;
+        }
+        case 'jump':
+        case 'jumpifz': {
+            const v = printValue(op.target);
+            return `${op.type}${delim}${v}`;
         }
         default:
             return op.type;
