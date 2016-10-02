@@ -103,7 +103,7 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
             result += flow.whileBlock(()=>{
                 // 1なら該当ブロックなので処理を実行
                 let result = emitBlock(b);
-                // stack: [?]
+                // stack: (next-addr) [?]
                 // フラグを再セット
                 result += stack.moveStackPointer(2);
                 result += stack.clearValue();
@@ -111,7 +111,7 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
                 // ここを0にしてループを抜ける
                 result += stack.moveStackPointer(-2);
                 result += stack.clearValue();
-                // stack: [0] ? 1
+                // stack: (next-addr) [0] ? 1
                 return result;
             });
             // ここから後処理と次のブロックへの移行処理
@@ -142,7 +142,7 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
             // これで次のブロックに実行移譲
 
             // ループ終了処理
-            // stack: [0] ? 0 (1/0) なのでそのまま終わればOK ({+3}が0ならプログラム死亡フラグ)
+            // stack: (next-addr) [0] ? 0 (1/0) なのでそのまま終わればOK ({+3}が0ならプログラム死亡フラグ)
             loopsuffix += flow.whileEnd();
 
         }
