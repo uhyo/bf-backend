@@ -15,7 +15,13 @@ export namespace make{
             value,
         };
     }
-    export function charValue(value: string): CharValue{
+    export function charValue(value: number | string): CharValue{
+        if ('number' === typeof value){
+            return {
+                type: 'char',
+                value,
+            };
+        }
         let r = value.match(/^([\+\-])?(?:0([xob]))?([0-9a-f]+)$/i);
         if (r != null){
             return {

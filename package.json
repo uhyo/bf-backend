@@ -8,6 +8,7 @@
     "build": "npm-run-all build:tsc build:jison",
     "build:jison": "jison ./parser/parser.jison -m commonjs -o ./dist/parser.js",
     "build:tsc": "tsc",
+    "clean": "rimraf dist",
     "watch": "tsc --watch"
   },
   "author": "",
@@ -16,6 +17,7 @@
     "@types/cli": "^0.11.19",
     "jison": "^0.4.17",
     "npm-run-all": "^3.1.0",
+    "rimraf": "^2.5.4",
     "typescript": "^2.0.0"
   },
   "dependencies": {

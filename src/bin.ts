@@ -6,6 +6,9 @@ import {
 import {
     printProgram,
 } from './print-asm';
+import {
+    emit,
+} from './emit/index';
 
 const {
     parser,
@@ -20,3 +23,5 @@ const data = fs.readFileSync(file, 'utf8');
 
 const program: Program = parser.parse(data);
 console.log(printProgram(program));
+
+console.log(emit(program));

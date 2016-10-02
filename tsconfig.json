@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "lib": ["dom", "es5", "es2015.core"],
+    "lib": ["dom", "es5", "es2015.core", "es2015.iterable"],
     "noEmitOnError": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -9,7 +9,7 @@
     "removeComments": true,
     "strictNullChecks": true,
     "module":"commonjs",
-    "target":"es5",
+    "target":"es6",
     "outDir":"dist/"
   },
   "include":[
