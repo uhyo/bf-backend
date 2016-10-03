@@ -29,10 +29,9 @@ function printOp(op: Op): string{
             const v = printValue(op.value);
             return `push${delim}${v}`;
         }
-        case 'jump':
-        case 'jumpifz': {
-            const v = printValue(op.target);
-            return `${op.type}${delim}${v}`;
+        case 'dup': {
+            const v = printValue(op.times);
+            return `dup{delim}${v}`;
         }
         default:
             return op.type;

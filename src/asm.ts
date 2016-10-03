@@ -23,11 +23,18 @@ export interface Push{
     type: 'push';
     value: Value;
 }
+export interface Dup{
+    type: 'dup';
+    times: CharValue;
+}
 export interface Discard{
     type: 'discard';
 }
 export interface Add{
     type: 'add';
+}
+export interface Sub{
+    type: 'sub';
 }
 export interface In{
     type: 'in';
@@ -37,11 +44,9 @@ export interface Out{
 }
 export interface Jump{
     type: 'jump';
-    target: AddrValue;
 }
 export interface JumpIfZ{
     type: 'jumpifz';
-    target: AddrValue;
 }
 export interface End{
     type: 'end';
@@ -52,7 +57,8 @@ export type Op =
     // Stack Manipulation.
     Push |
     Discard |
-    Add |
+    Dup |
+    Add | Sub |
     // I/O.
     In | Out |
     // Jump.

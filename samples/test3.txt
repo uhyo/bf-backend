@@ -1,0 +1,18 @@
+*main:
+	push 9;
+	push loop;
+	jump;
+
+*loop:
+	push 0x30;
+	add;
+	out;
+	push 0x31;
+	sub;
+	dup;
+	push finish;
+	push loop;
+	jumpifz;
+
+*finish:
+	end;

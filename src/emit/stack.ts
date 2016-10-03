@@ -97,3 +97,25 @@ export function moveValue(from: number, dest: number, nocleanup: boolean = false
     return destructiveDup(from, [dest], nocleanup);
 }
 
+/**
+ * Perform a destructive subtraction.
+ * @param {number} from - Relative address of the subtracter data.
+ * @param {Array<number>} tos - Relative addresses of subtraction target.
+ */
+export function destructiveSub(from: number, tos: Array<number>): string{
+    let result = '';
+    result += moveStackPointer(from);
+    let prev = from;
+    // destructive subtraction
+    result += '[-';
+    for (let to of tos){
+        result += moveStackPointer(to - prev);
+        result += '-';
+        prev = to;
+    }
+    result += moveStackPointer(from - prev);
+    result += ']';
+    // 元の位置に戻す
+    result += moveStackPointer(-from);
+    return result;
+}

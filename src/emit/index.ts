@@ -114,7 +114,7 @@ function emitBlocks(blocks: Array<Block>, env: EmitEnvironment): string{
             // stack: | [0/1] (addr-1) (0/1) 0
             result += flow.whileBlock(()=>{
                 // 1なら該当ブロックなので処理を実行
-                let result = '$' + emitBlock(b, env);
+                let result = emitBlock(b, env);
                 // stack: (next-addr) | [?]
                 // フラグを再セット
                 result += stack.moveStackPointer(2);
@@ -155,7 +155,7 @@ function emitBlocks(blocks: Array<Block>, env: EmitEnvironment): string{
 
             // ループ終了処理
             // stack: (next-addr) | [0] ? 0 (1/0) なのでそのまま終わればOK ({+3}が0ならプログラム死亡フラグ)
-            loopsuffix += flow.whileEnd() + '$';
+            loopsuffix += flow.whileEnd();
 
         }
         // ここはどのブロックにも入らずに最後まできた場合の処理（プログラム終了）
@@ -165,7 +165,6 @@ function emitBlocks(blocks: Array<Block>, env: EmitEnvironment): string{
         result += stack.clearValue();
         result += stack.moveStackPointer(-3);
         result += stack.clearValue();
-        result += '$';
         // stack: | [0] ? ? 0
         
         // ループの終焉

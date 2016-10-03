@@ -5,29 +5,43 @@ import {
     Program,
 } from './asm';
 
-export function isValidOp({type}: Op): boolean{
+export function isValidOp(op: Op): boolean{
     const valids = [
         'nop',
         'push',
         'discard',
-        'add',
+        'dup',
+        'add', 'sub',
         'in', 'out',
         'jump', 'jumpifz', 'end',
     ];
-    return valids.indexOf(type) >= 0;
+    if (valids.indexOf(op.type) < 0){
+        return false;
+    }
+    if (op.type === 'dup'){
+        // CharValueであることを保証しないとだめ
+        if (op.times.type !== 'char'){
+            return false;
+        }
+    }
+    return true;
 }
 
 export function isValidBlock({addr, code}: Block): boolean{
-    if (!code.every(isValidOp)){
-        // 未定義命令があったらだめ
-        return false;
+    let lastflg = false;
+    for (let op of code){
+        if (!isValidOp(op)){
+            // 未定義命令はだめ
+            return false;
+        }
+        if (lastflg === true){
+            return false;
+        }
+        if (isFlowOp(op)){
+            lastflg = true;
+        }
     }
-    const lastop = code[code.length-1];
-    if (lastop == null){
-        return false;
-    }
-    // 最後のopはcontrol flow命令でないとだめ
-    return isFlowOp(lastop);
+    return lastflg;
 }
 
 export function isValidProgram({start, blocks}: Program): boolean{

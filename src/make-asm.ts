@@ -63,9 +63,12 @@ export namespace make{
                 type: 'push',
                 value: args[0],
             };
-            case 'jump': case 'jumpifz': return {
-                type,
-                target: args[0] as AddrValue,
+            case 'dup': return {
+                type: 'dup',
+                times: args[0] != null ? (args[0] as CharValue) : {
+                    type: 'char',
+                    value: 1,
+                },
             } as Op;
             default: return {
                 type,
