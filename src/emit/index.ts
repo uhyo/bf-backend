@@ -17,13 +17,17 @@ import {
 import {
     emitOp,
 } from './op';
+import {
+    optimize,
+} from './opt';
 
 export function emit({blocks, start}: Program): string{
     // Blockをreorderする
     const bs = reorderBlocks(blocks, start);
     const env: EmitEnvironment = makeEnvironment(bs);
 
-    return emitBlocks(bs, env);
+    const pre = emitBlocks(bs, env);
+    return optimize(pre);
 }
 
 // valueになっている奴を最初にしてあとは流れで
