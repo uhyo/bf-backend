@@ -3,5 +3,7 @@
 	push 0x30;
 	push 0x35;
 	out;
+	discard;
 	out;
+	end;
 

@@ -1,0 +1,39 @@
+*main:
+	push 0x30;
+	out;
+	discard;
+	push 0x31;
+	out;
+	discard;
+	push label2;
+	jump;
+
+*label1:
+	push 0x30;
+	out;
+	discard;
+	push 0x33;
+	out;
+	discard;
+	push label3;
+	jump;
+
+*label2:
+	push 0x30;
+	out;
+	discard;
+	push 0x32;
+	out;
+	discard;
+	push label1;
+	jump;
+
+*label3:
+	push 0x30;
+	out;
+	discard;
+	push 0x34;
+	out;
+	discard;
+	end;
+
