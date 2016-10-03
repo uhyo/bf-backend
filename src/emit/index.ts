@@ -11,15 +11,19 @@ import * as stack from './stack';
 import * as flow from './flow';
 import {
     AddrMap,
+    EmitEnvironment,
     interpretValue,
 } from './util';
+import {
+    emitOp,
+} from './op';
 
 export function emit({blocks, start}: Program): string{
     // Blockをreorderする
     const bs = reorderBlocks(blocks, start);
-    const map = makeAddrMap(bs);
+    const env: EmitEnvironment = makeEnvironment(bs);
 
-    return emitBlocks(bs, map);
+    return emitBlocks(bs, env);
 }
 
 // valueになっている奴を最初にしてあとは流れで
@@ -35,20 +39,26 @@ function reorderBlocks(blocks: Array<Block>, {value}: AddrValue): Array<Block>{
     return result;
 }
 // ブロックのラベル名を整数アドレスと対応付ける
-function makeAddrMap(blocks: Array<Block>): AddrMap{
-    const result: AddrMap = {};
+function makeEnvironment(blocks: Array<Block>): EmitEnvironment{
+    const addrmap: AddrMap = {};
     const l = blocks.length;
     for (let i=0; i<l; i++){
         const {
            addr,
         } = blocks[i];
-        result[addr] = i;
+        addrmap[addr] = i;
     }
-    return result;
+    return {
+        addrmap,
+        endAddr: l,
+    };
+
 }
 
 // プログラム全体: inter-Blockの制御
-function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
+function emitBlocks(blocks: Array<Block>, env: EmitEnvironment): string{
+    const map = env.addrmap;
+
     let result = '';
     // 最初は0番ブロックから開始
     // 3番にプログラム実行中フラグを立てる
@@ -61,22 +71,24 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
         let result = '';
         let loopsuffix = '';
 
-        // stack: addr ? ? [1]
+        // stack: B| addr ? ? [1]
         result += stack.moveStackPointer(-3);
 
         // 各ブロック処理
         for (let b of blocks){
+            // stack: | [addr]
             // スタックの一番上は実行addrになっている （減っていって0なら実行）
 
             // addrをコピー
-            result += stack.destructiveDup(-1, [0, 1]);
+            result += stack.destructiveDup(0, [1, 2]);
+            // stack: | [0] addr addr
 
             // このブロックを実行するフラグを作る
-            result += stack.moveStackPointer(2);
+            result += stack.moveStackPointer(3);
             result += stack.pushCharValue(1);
             // addrが0かそれ以外かで分岐
             result += stack.moveStackPointer(-2);
-            // stack: 0 addr [addr] 1
+            // stack: | 0 addr [addr] 1
             result += flow.whileBlock(()=>{
                 let result = '';
                 // addrが0ではないのでこのブロックを実行しない
@@ -91,19 +103,19 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
                 // コピーしたaddrは用済みなので0にする
                 result += stack.moveStackPointer(1);
                 result += stack.clearValue();
-                // stack: 0 (addr-1) [0] 0
+                // stack: | 0 (addr-1) [0] 0
                 return result;
             });
-            // addrが0だった場合 →  0 0 [0] 1
-            // 0ではなかった場合 → 0 (addr-1) [0] 0
+            // addrが0だった場合 →  | 0 0 [0] 1
+            // 0ではなかった場合 →  | 0 (addr-1) [0] 0
             // 余計なスタックをアレする
             result += stack.destructiveDup(1, [0, -2], true);
             result += stack.moveStackPointer(-2);
-            // stack: [0/1] (addr-1) (0/1)
+            // stack: | [0/1] (addr-1) (0/1) 0
             result += flow.whileBlock(()=>{
                 // 1なら該当ブロックなので処理を実行
-                let result = emitBlock(b);
-                // stack: (next-addr) [?]
+                let result = '$' + emitBlock(b, env);
+                // stack: (next-addr) | [?]
                 // フラグを再セット
                 result += stack.moveStackPointer(2);
                 result += stack.clearValue();
@@ -111,18 +123,18 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
                 // ここを0にしてループを抜ける
                 result += stack.moveStackPointer(-2);
                 result += stack.clearValue();
-                // stack: (next-addr) [0] ? 1
+                // stack: (next-addr) | [0] ? 1
                 return result;
             });
             // ここから後処理と次のブロックへの移行処理
-            // stack: [0] (addr-1?) (0/1)
-            // {+2}が1だった場合実行終了
+            // stack: | [0] (addr-1?) (0/1)
+            // {+2}が1だった場合上のブロックを実行した（実行終了）
             result += stack.addValue(1);
             result += stack.moveStackPointer(3);
             result += stack.clearValue();
             result += stack.moveStackPointer(-1);
-            // stack: 1 (addr-1?) [0/1] 0
-            // まず0/1反転
+            // stack: | 1 (addr-1?) [0/1] 0
+            // {0}を0/1反転して{-2}に置く ついでに{+1}もフラグ設置
             result += flow.whileBlock(()=>{
                 let result = '';
                 result += stack.moveStackPointer(-2);
@@ -134,25 +146,27 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
                 return result;
             });
             result += stack.moveStackPointer(-2);
-            // stack: [1/0] (addr-1?) 0 [0/1]
-            // {0}1なら実行継続 {+3}は{0}と逆(0なら実行継続)
+            // stack: | [1/0] (addr-1?) 0 (0/1)
+            // {0}が1なら実行継続、{+3}はプログラム実行継続フラグ
             result += flow.whileStart();
             result += stack.moveValue(1, 0);
-            // stack: [addr-1]
+            // stack: | [addr-1]
             // これで次のブロックに実行移譲
 
             // ループ終了処理
-            // stack: (next-addr) [0] ? 0 (1/0) なのでそのまま終わればOK ({+3}が0ならプログラム死亡フラグ)
-            loopsuffix += flow.whileEnd();
+            // stack: (next-addr) | [0] ? 0 (1/0) なのでそのまま終わればOK ({+3}が0ならプログラム死亡フラグ)
+            loopsuffix += flow.whileEnd() + '$';
 
         }
         // ここはどのブロックにも入らずに最後まできた場合の処理（プログラム終了）
+        // stack: | [addr]
         // {+3}を0にすることでプログラム終了フラグ
         result += stack.moveStackPointer(3);
         result += stack.clearValue();
         result += stack.moveStackPointer(-3);
         result += stack.clearValue();
-        // stack: [0] ? ? 0
+        result += '$';
+        // stack: | [0] ? ? 0
         
         // ループの終焉
         result += loopsuffix;
@@ -160,11 +174,13 @@ function emitBlocks(blocks: Array<Block>, map: AddrMap): string{
         result += stack.moveStackPointer(3);
         return result;
     });
-
-    console.log(blocks, map);
     return result;
 }
 
-function emitBlock(_b: Block): string{
-    return '^o^';
+function emitBlock({code}: Block, env: EmitEnvironment): string{
+    let result = '';
+    for (let op of code){
+        result += emitOp(op, env);
+    }
+    return result;
 }

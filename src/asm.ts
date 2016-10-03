@@ -43,6 +43,9 @@ export interface JumpIfZ{
     type: 'jumpifz';
     target: AddrValue;
 }
+export interface End{
+    type: 'end';
+}
 
 export type Op =
     Nop |
@@ -53,7 +56,7 @@ export type Op =
     // I/O.
     In | Out |
     // Jump.
-    Jump | JumpIfZ;
+    Jump | JumpIfZ | End;
 
 // Def. of Program.
 export interface Block{
