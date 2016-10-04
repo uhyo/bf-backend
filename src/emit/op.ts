@@ -47,6 +47,15 @@ export function emitOp(op: Op, env: EmitEnvironment): string{
             result += stack.moveStackPointer(times);
             return result;
         }
+        case 'swap': {
+            let result = '';
+            // stack: x y [?] => y x [?]
+            // TODO これ絶対効率悪い
+            result += stack.moveValue(-2, 0);
+            result += stack.moveValue(-1, -2, true);
+            result += stack.moveValue(0, -1, true);
+            return result;
+        }
         case 'add': {
             // stack: x y [?] => (x+y) [0]
             const add = stack.destructiveDup(-1, [-2], true);

@@ -30,6 +30,9 @@ export interface Dup{
 export interface Discard{
     type: 'discard';
 }
+export interface Swap{
+    type: 'swap';
+}
 export interface Add{
     type: 'add';
 }
@@ -58,6 +61,7 @@ export type Op =
     Push |
     Discard |
     Dup |
+    Swap |
     Add | Sub |
     // I/O.
     In | Out |

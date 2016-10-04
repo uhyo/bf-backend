@@ -11,6 +11,7 @@ export function isValidOp(op: Op): boolean{
         'push',
         'discard',
         'dup',
+        'swap',
         'add', 'sub',
         'in', 'out',
         'jump', 'jumpifz', 'end',

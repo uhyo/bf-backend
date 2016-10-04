@@ -1,0 +1,50 @@
+*main:
+	push main_1;
+	push 10;
+	push fib;
+	jump;
+
+*main_1:
+	out;
+	end;
+
+*fib:
+	dup;
+	push fib_1;
+	push fib_2;
+	jumpifz;
+
+*fib_1:
+	swap;
+	jump;
+*fib_2:
+	dup;
+	push 1;
+	sub;
+	push fib_1;
+	push fib_3;
+	jumpifz;
+
+*fib_3:
+	push 1;
+	sub;
+	dup;
+	push 1;
+	sub;
+	push fib_4;
+	swap;
+	push fib;
+	jump;
+
+*fib_4:
+	swap;
+	push fib_5;
+	swap;
+	push fib;
+	jump;
+*fib_5:
+	add;
+	swap;
+	jump;
+
+	
