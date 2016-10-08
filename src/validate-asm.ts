@@ -8,22 +8,17 @@ import {
 export function isValidOp(op: Op): boolean{
     const valids = [
         'nop',
-        'push',
-        'discard',
-        'dup',
-        'swap',
-        'add', 'sub',
+        'mov',
+        'clr',
+        'addi',
+        'sub',
+        'movp',
         'in', 'out',
         'jump', 'jumpifz', 'end',
+        'debug',
     ];
     if (valids.indexOf(op.type) < 0){
         return false;
-    }
-    if (op.type === 'dup'){
-        // CharValueであることを保証しないとだめ
-        if (op.times.type !== 'char'){
-            return false;
-        }
     }
     return true;
 }

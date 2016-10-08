@@ -1,39 +1,42 @@
 *main:
-	push 0x30;
-	out;
-	discard;
-	push 0x31;
-	out;
-	discard;
-	push label2;
+	clr 0;
+	addi 0, 0x30;
+	clr 1;
+	addi 1, 0x31;
+	out 0;
+	out 1;
+	clr 2;
+	addi 2, label2;
+	movp 3;
 	jump;
 
 *label1:
-	push 0x30;
-	out;
-	discard;
-	push 0x33;
-	out;
-	discard;
-	push label3;
+	clr 0;
+	addi 0, 0x30;
+	out 0;
+	addi 0, 3;
+	out 0;
+	clr -1;
+	addi -1, label3;
 	jump;
 
 *label2:
-	push 0x30;
-	out;
-	discard;
-	push 0x32;
-	out;
-	discard;
-	push label1;
+	clr 0;
+	addi 0, 0x30;
+	out 0;
+	addi 0, 2;
+	out 0;
+	movp 1;
+	clr -1;
+	addi -1, label1;
 	jump;
 
 *label3:
-	push 0x30;
-	out;
-	discard;
-	push 0x34;
-	out;
-	discard;
+	clr 0;
+	addi 0, 0x30;
+	out 0;
+	clr 1;
+	addi 1, 0x34;
+	out 1;
 	end;
 

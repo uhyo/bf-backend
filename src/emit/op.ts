@@ -21,62 +21,32 @@ export function emitOp(op: Op, env: EmitEnvironment): string{
     switch (op.type){
         case 'nop':
             return '';
-        case 'push': {
-            const ch = interpretValue(op.value, addrmap);
-            return stack.pushCharValue(ch);
+        case 'mov': {
+            return stack.destructiveDup(op.from, op.to, true);
         }
-        case 'discard': 
-            return stack.moveStackPointer(-1);
-        case 'dup': {
-            const {
-                times: {
-                    value: times,
-                },
-            } = op;
-            let result = '';
-            // stack: | x [?]
-            // xをtimes回複製する
-            const ts: Array<number> = [];
-            for (let i=0; i<=times; i++){
-                ts.push(i);
-            }
-            // XXX もっと効率のよい処理があるのでは？
-            result += stack.destructiveDup(-1, ts);
-            // そして戻す
-            result += stack.moveValue(times, -1);
-            result += stack.moveStackPointer(times);
-            return result;
+        case 'clr': {
+            return stack.clearValue(op.at);
         }
-        case 'swap': {
-            let result = '';
-            // stack: x y [?] => y x [?]
-            // TODO これ絶対効率悪い
-            result += stack.moveValue(-2, 0);
-            result += stack.moveValue(-1, -2, true);
-            result += stack.moveValue(0, -1, true);
-            return result;
-        }
-        case 'add': {
-            // stack: x y [?] => (x+y) [0]
-            const add = stack.destructiveDup(-1, [-2], true);
-            const mv = stack.moveStackPointer(-1);
-            return add + mv;
+        case 'addi': {
+            const val = interpretValue(op.value, addrmap);
+            return stack.moveStackPointer(op.at) + stack.addValue(val) + stack.moveStackPointer(-op.at);
         }
         case 'sub': {
-            // stack: x y [?] => (x-y) [0]
-            const sub = stack.destructiveSub(-1, [-2]);
-            const mv = stack.moveStackPointer(-1);
-            return sub + mv;
+            return stack.destructiveSub(op.from, op.to);
+        }
+        case 'movp': {
+            return stack.moveStackPointer(op.at);
         }
         case 'in': {
-            let result = io.charIn();
-            result += stack.moveStackPointer(1);
+            let result = stack.moveStackPointer(op.at);
+            result += io.charIn();
+            result += stack.moveStackPointer(-op.at);
             return result;
         }
         case 'out': {
-            let result = stack.moveStackPointer(-1);
+            let result = stack.moveStackPointer(op.at);
             result += io.charOut();
-            result += stack.moveStackPointer(1);
+            result += stack.moveStackPointer(-op.at);
             return result;
         }
         case 'jump': {
@@ -105,9 +75,15 @@ export function emitOp(op: Op, env: EmitEnvironment): string{
             return result;
         }
         case 'end': {
-            // TODO
-            let result = stack.pushCharValue(env.endAddr);
+            // endAddrをスタックに積む
+            let result = stack.clearValue();
+            result += stack.addValue(env.endAddr);
+            result += stack.moveStackPointer(1);
             return result;
+        }
+        case 'debug': {
+            // Debug 命令を出力
+            return '$';
         }
     }
 }

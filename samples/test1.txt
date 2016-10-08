@@ -1,9 +1,10 @@
 # show 2 values
 *main:
-	push 0x30;
-	push 0x35;
-	out;
-	discard;
-	out;
+	clr 0;
+	addi 0, 0x30;
+	clr 1;
+	addi 1, 0x35;
+	out 0;
+	out 1;
 	end;
 

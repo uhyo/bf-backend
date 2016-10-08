@@ -25,13 +25,22 @@ function printBlock({addr, code}: Block): string{
 function printOp(op: Op): string{
     const delim = '\t\t';
     switch (op.type){
-        case 'push': {
-            const v = printValue(op.value);
-            return `push${delim}${v}`;
+        case 'mov': case 'sub': {
+            const f = String(op.from);
+            const ts = op.to.map(String).join(', ');
+            return `${op.type}${delim}${f}, ${ts}`;
         }
-        case 'dup': {
-            const v = printValue(op.times);
-            return `dup{delim}${v}`;
+        case 'clr':
+        case 'movp':
+        case 'in':
+        case 'out': {
+            const at = String(op.at);
+            return `${op.type}${delim}${at}`;
+        }
+        case 'addi': {
+            const at = String(op.at);
+            const v = printValue(op.value);
+            return `${op.type}${delim}${at}, ${v}`;
         }
         default:
             return op.type;

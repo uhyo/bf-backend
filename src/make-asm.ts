@@ -59,20 +59,37 @@ export namespace make{
     export function op(ty: string, args: Array<Value>): Op{
         const type = ty.toLowerCase();
         switch (type){
-            case 'push': return {
-                type: 'push',
-                value: args[0],
-            };
-            case 'dup': return {
-                type: 'dup',
-                times: args[0] != null ? (args[0] as CharValue) : {
-                    type: 'char',
-                    value: 1,
-                },
+            case 'mov': case 'sub': {
+                const [f, ...to] = args;
+                return {
+                    type,
+                    from: extract(f),
+                    to: to.map(extract),
+                } as Op;
+            }
+            case 'clr':
+            case 'movp':
+            case 'in':
+            case 'out': return {
+                type,
+                at: extract(args[0]),
+            } as Op;
+            case 'addi': return {
+                type: 'addi',
+                at: extract(args[0]),
+                value: args[1],
             } as Op;
             default: return {
                 type,
             } as Op;
+        }
+        function extract(v: Value): number{
+            switch (v.type){
+                case 'char':
+                    return v.value;
+                default:
+                    throw new Error(`Cannot interpret ${v.type} value as number`);
+            }
         }
     }
     export function block(addr: string, code: Array<Op>): Block{

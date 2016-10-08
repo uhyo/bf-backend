@@ -1,17 +1,25 @@
 *main:
-	push 9;
-	push loop;
+	clr 0;
+	addi 0, 9;
+	clr 1;
+	addi 1, loop;
+	movp 2;
 	jump;
 
 *loop:
-	push 0x30;
-	add;
-	out;
-	push 0x31;
-	sub;
-	dup;
-	push finish;
-	push loop;
+	clr 0;
+	addi 0, 0x30;
+	clr 1;
+	clr 2;
+	mov -1, 0, 1, 2;
+	out 0;
+	addi 1, -1;
+	addi 2, -1;
+	clr 3;
+	addi 3, finish;
+	clr 4;
+	addi 4, loop;
+	movp 5;
 	jumpifz;
 
 *finish:

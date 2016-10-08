@@ -19,31 +19,36 @@ export type Value = CharValue | AddrValue | UnitValue;
 export interface Nop{
     type: 'nop';
 }
-export interface Push{
-    type: 'push';
+export interface Mov{
+    type: 'mov';
+    from: number;
+    to: Array<number>;
+}
+export interface Clr{
+    type: 'clr';
+    at: number;
+}
+export interface Addi{
+    type: 'addi';
+    at: number;
     value: Value;
-}
-export interface Dup{
-    type: 'dup';
-    times: CharValue;
-}
-export interface Discard{
-    type: 'discard';
-}
-export interface Swap{
-    type: 'swap';
-}
-export interface Add{
-    type: 'add';
 }
 export interface Sub{
     type: 'sub';
+    from: number;
+    to: Array<number>;
+}
+export interface Movp{
+    type: 'movp';
+    at: number;
 }
 export interface In{
     type: 'in';
+    at: number;
 }
 export interface Out{
     type: 'out';
+    at: number;
 }
 export interface Jump{
     type: 'jump';
@@ -54,19 +59,25 @@ export interface JumpIfZ{
 export interface End{
     type: 'end';
 }
+export interface Debug{
+    type: 'debug';
+}
 
 export type Op =
     Nop |
-    // Stack Manipulation.
-    Push |
-    Discard |
-    Dup |
-    Swap |
-    Add | Sub |
+    // Memory Manipulation.
+    Mov |
+    Clr |
+    Addi |
+    Sub |
+    // Data Pointer.
+    Movp |
     // I/O.
     In | Out |
-    // Jump.
-    Jump | JumpIfZ | End;
+    // Flow control.
+    Jump | JumpIfZ | End |
+    // Debug instruction.
+    Debug;
 
 // Def. of Program.
 export interface Block{
